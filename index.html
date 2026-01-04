@@ -2,240 +2,219 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Class Test Manager</title>
+<title>Whole Class Marks</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
 <style>
-body{
-  margin:0;
-  font-family:Arial;
-  background:linear-gradient(135deg,#667eea,#764ba2);
-  min-height:100vh;
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui;background:#f2f3f7}
+
+/* INDEX PAGE */
+#index{
+height:100vh;display:flex;align-items:center;justify-content:center;
+background:linear-gradient(135deg,#667eea,#764ba2);
+color:#fff;text-align:center
 }
-.screen{display:none;padding:20px}
-.active{display:block;animation:slide .6s ease}
-@keyframes slide{from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1}}
+#index h1{font-size:40px}
+#index button{
+padding:14px 36px;border:none;border-radius:30px;
+font-size:18px;background:#fff;color:#667eea;font-weight:bold;
+cursor:pointer
+}
+
+/* HEADER */
+.header{
+background:#667eea;color:#fff;padding:16px;
+text-align:center;font-size:20px;font-weight:bold
+}
+
+/* SCREENS */
+.screen{display:none;padding:12px}
+.active{display:block}
+
+/* CARD */
 .card{
-  background:white;
-  max-width:650px;
-  margin:auto;
-  padding:20px;
-  border-radius:16px;
-  box-shadow:0 10px 30px rgba(0,0,0,.3);
-  animation:float 3s infinite ease-in-out;
+background:#fff;border-radius:16px;padding:14px;
+max-width:1200px;margin:auto;
+box-shadow:0 8px 25px rgba(0,0,0,.15)
 }
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-h2{text-align:center}
-input,button{width:100%;padding:12px;margin-top:10px;border-radius:8px;border:1px solid #ccc;font-size:16px;}
-button{background:#667eea;color:white;border:none;cursor:pointer;transition:.3s}
-button:hover{animation:wobble .6s}
-@keyframes wobble{0%{transform:rotate(0)}25%{transform:rotate(2deg)}50%{transform:rotate(-2deg)}75%{transform:rotate(1deg)}100%{transform:rotate(0)}}
 
-.student{background:#f1f1f1;padding:12px;margin-top:12px;border-radius:10px;}
-img{max-width:90px;border-radius:8px;}
+input,button{
+padding:8px;border-radius:8px;
+border:1px solid #ccc;font-size:14px
+}
+button{
+background:#667eea;color:#fff;border:none;font-weight:bold;cursor:pointer
+}
 
-.bar{background:#ddd;border-radius:20px;overflow:hidden;margin-top:6px;}
-.fill{height:18px;width:0;background:#667eea;animation:grow 1.2s forwards;}
-@keyframes grow{to{width:var(--w)}}
-.logo{max-width:100px;margin:auto;display:block;}
+/* TABLE */
+.table-wrap{
+overflow-x:auto;margin-top:10px
+}
+table{
+border-collapse:collapse;width:100%;min-width:900px
+}
+th,td{
+border:1px solid #ddd;
+padding:6px;text-align:center;font-size:13px
+}
+th{background:#f1f1f1}
+.student-row input{
+width:60px
+}
+.name{width:120px}
+.roll{width:50px}
+
+/* STUDENT VIEW */
+.student{
+background:#f6f7fb;border-radius:10px;
+padding:10px;margin-top:8px
+}
 </style>
 </head>
-
 <body>
+
+<!-- INDEX PAGE -->
+<div id="index">
+  <div>
+    <h1>STUDENT MARKS</h1>
+    <button onclick="startApp()">Enter</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+
+<div class="header">WHOLE CLASS MARKS</div>
 
 <!-- HOME -->
 <div class="screen active" id="home">
 <div class="card">
-<img id="schoolLogo" class="logo" src="https://via.placeholder.com/100">
-<h2 id="schoolName">🏫 My School</h2>
-<button onclick="openScreen('settings')">⚙️ School Settings</button>
-<button onclick="openScreen('add')">➕ Add Student Result</button>
+<button onclick="openScreen('add')">📝 Enter Class Marks</button>
 <button onclick="openScreen('view')">📋 View Students</button>
-<button onclick="openScreen('analysis')">📊 Subject Analysis</button>
-<button onclick="openScreen('toplow')">🎯 Top & Lowest</button>
+<button onclick="openScreen('analysis')">📊 Analysis</button>
 </div>
 </div>
 
-<!-- SCHOOL SETTINGS -->
-<div class="screen" id="settings">
+<!-- ADD WHOLE CLASS -->
+<div class="screen" id="add">
 <div class="card">
-<h2>School Settings</h2>
-<input id="schoolNameInput" placeholder="School Name">
-<button onclick="saveSchool()">Save</button>
+<h3>Enter Whole Class Marks</h3>
+<input id="cls" placeholder="Class / Section">
+<input type="number" id="outof" placeholder="Out of Marks (per subject)">
+<input type="number" id="count" placeholder="Number of Students">
+<button onclick="createClassTable()">Create Table</button>
+
+<div class="table-wrap">
+<table id="classTable"></table>
+</div>
+
+<button onclick="saveClass()">Save Class</button>
 <button onclick="openScreen('home')">Back</button>
 </div>
 </div>
 
-<!-- ADD STUDENT -->
-<div class="screen" id="add">
-<div class="card">
-<h2>📝 Add Student</h2>
-<input id="name" placeholder="Student Name">
-<input id="cls" placeholder="Class / Section">
-<input id="roll" placeholder="Roll No">
-<input id="parent" placeholder="Parent Name">
-<input id="photoURL" placeholder="Photo URL (optional)">
-<input type="number" id="s1" placeholder="Subject 1 Marks">
-<input type="number" id="s2" placeholder="Subject 2 Marks">
-<input type="number" id="s3" placeholder="Subject 3 Marks">
-<input type="number" id="s4" placeholder="Subject 4 Marks">
-<input type="number" id="s5" placeholder="Subject 5 Marks">
-<button onclick="saveStudent()">💾 Save</button>
-<button onclick="openScreen('home')">⬅ Back</button>
-</div>
-</div>
-
-<!-- VIEW STUDENTS -->
+<!-- VIEW -->
 <div class="screen" id="view">
 <div class="card">
-<h2>📋 Student List</h2>
+<h3>All Students</h3>
 <div id="list"></div>
 <button onclick="openScreen('home')">Back</button>
 </div>
 </div>
 
-<!-- SUBJECT ANALYSIS -->
+<!-- ANALYSIS -->
 <div class="screen" id="analysis">
 <div class="card">
-<h2>📊 Subject Analysis</h2>
+<h3>Class Analysis</h3>
 <div id="analysisData"></div>
 <button onclick="openScreen('home')">Back</button>
 </div>
 </div>
 
-<!-- TOP & LOWEST -->
-<div class="screen" id="toplow">
-<div class="card">
-<h2>🎯 Top & Lowest Students</h2>
-<div id="toplowData"></div>
-<button onclick="openScreen('home')">Back</button>
-</div>
-</div>
-
 <script>
+const subjects=["TELUGU","HINDI","ENGLISH","MATHS","SCIENCE","SOCIAL"];
+
+function startApp(){
+index.style.display="none";
+app.style.display="block";
+}
+
 function openScreen(id){
-    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    if(id==="view") showStudents();
-    if(id==="analysis") showAnalysis();
-    if(id==="toplow") showTopLow();
+document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+if(id==="view") showStudents();
+if(id==="analysis") analyzeClass();
 }
 
-// SCHOOL SETTINGS
-function saveSchool(){
-    let name=document.getElementById("schoolNameInput").value.trim();
-    if(name) document.getElementById("schoolName").innerText=name;
-    alert("School info saved");
+function createClassTable(){
+let n=Number(document.getElementById('count').value||0);
+let out=Number(document.getElementById('outof').value||0);
+if(n<1){alert("Enter number of students"); return;}
+if(out<1){alert("Enter out of marks"); return;}
+
+let table=document.getElementById('classTable');
+let html='<tr><th>Roll</th><th>Name</th>';
+subjects.forEach(s=>{html+='<th>'+s+'</th>'});
+html+='<th>Total</th><th>%</th></tr>';
+
+for(let i=0;i<n;i++){
+html+='<tr class="student-row">';
+html+='<td><input class="roll" type="number" placeholder="Roll"></td>';
+html+='<td><input class="name" placeholder="Name"></td>';
+for(let j=0;j<subjects.length;j++){
+html+='<td><input type="number"></td>';
+}
+html+='<td class="total">0</td><td class="percent">0%</td></tr>';
+}
+table.innerHTML=html;
 }
 
-// SAVE STUDENT
-function saveStudent(){
-    let name = document.getElementById("name").value.trim();
-    let cls = document.getElementById("cls").value.trim();
-    let roll = document.getElementById("roll").value.trim();
-    let parent = document.getElementById("parent").value.trim();
-    let photoURL = document.getElementById("photoURL").value.trim();
+function saveClass(){
+let table=document.getElementById('classTable');
+let cls=document.getElementById('cls').value;
+let out=Number(document.getElementById('outof').value||0);
+if(!cls||!out){alert("Enter class and out of marks");return;}
 
-    if(!name || !cls || !roll){
-        alert("Please fill student details");
-        return;
-    }
+let db=JSON.parse(localStorage.getItem("students"))||[];
+let rows=table.querySelectorAll('.student-row');
 
-    let marks = [
-        Number(document.getElementById("s1").value)||0,
-        Number(document.getElementById("s2").value)||0,
-        Number(document.getElementById("s3").value)||0,
-        Number(document.getElementById("s4").value)||0,
-        Number(document.getElementById("s5").value)||0
-    ];
+rows.forEach(r=>{
+let roll=r.querySelector('.roll').value||"";
+let name=r.querySelector('.name').value||"";
+let marks=[...r.querySelectorAll('td input')].slice(2).map(i=>Number(i.value||0));
+let total=marks.reduce((a,b)=>a+b,0);
+let totalOut=out*subjects.length;
+let percent=((total/totalOut)*100).toFixed(2);
+r.querySelector('.total').innerText=total;
+r.querySelector('.percent').innerText=percent+'%';
 
-    let total = marks.reduce((a,b)=>a+b,0);
-    let percent = (total/marks.length).toFixed(2);
-    let grade = percent>=90?"A+":percent>=75?"A":percent>=60?"B":percent>=40?"C":"Fail";
-
-    // Use default photo if no URL provided
-    let photo = photoURL || "https://via.placeholder.com/90";
-
-    let db = JSON.parse(localStorage.getItem("results")) || [];
-    db.push({name,cls,roll,parent,marks,total,percent,grade,photo});
-    localStorage.setItem("results", JSON.stringify(db));
-    alert("✅ Student result saved!");
-
-    // Clear inputs
-    document.getElementById("name").value="";
-    document.getElementById("cls").value="";
-    document.getElementById("roll").value="";
-    document.getElementById("parent").value="";
-    
-    document.getElementById("s1").value="";
-    document.getElementById("s2").value="";
-    document.getElementById("s3").value="";
-    document.getElementById("s4").value="";
-    document.getElementById("s5").value="";
-
-    openScreen("home");
+db.push({roll,name,cls,marks,total,totalOut,percent});
+});
+localStorage.setItem('students',JSON.stringify(db));
+alert("Class saved successfully ✅");
+openScreen('home');
 }
 
-// VIEW STUDENTS
 function showStudents(){
-    let db=JSON.parse(localStorage.getItem("results"))||[];
-    list.innerHTML=db.map(s=>`
-        <div class="student">
-        <img src="${s.photo}"><br>
-        <b>${s.name}</b> (Roll ${s.roll})<br>
-        Class: ${s.cls}<br>
-        Parent: ${s.parent}<br>
-        Marks: ${s.marks.join(", ")}<br>
-        Total: ${s.total} | Grade: ${s.grade}<br>
-        <button onclick='generatePDF(${JSON.stringify(s)})'>📄 PDF</button>
-        </div>`).join("");
+let db=JSON.parse(localStorage.getItem('students'))||[];
+if(!db.length){list.innerHTML="No data"; return;}
+list.innerHTML=db.map(s=>`
+<div class="student">
+<b>${s.name}</b> (Roll ${s.roll})<br>
+Class: ${s.cls}<br>
+Marks: ${s.marks.join(', ')}<br>
+Total: ${s.total}/${s.totalOut} | ${s.percent}%
+</div>`).join('');
 }
 
-// GENERATE PDF
-function generatePDF(student){
-    const { jsPDF } = window.jspdf;
-    let pdf=new jsPDF();
-    pdf.setFontSize(16);
-    pdf.text(document.getElementById("schoolName").innerText,20,20);
-    pdf.addImage(student.photo,'JPEG',150,10,40,40);
-    pdf.text(`Name: ${student.name}`,20,40);
-    pdf.text(`Class: ${student.cls}`,20,50);
-    pdf.text(`Roll: ${student.roll}`,20,60);
-    pdf.text(`Parent: ${student.parent}`,20,70);
-    pdf.text(`Marks: ${student.marks.join(", ")}`,20,80);
-    pdf.text(`Total: ${student.total}`,20,90);
-    pdf.text(`Percentage: ${student.percent}%`,20,100);
-    pdf.text(`Grade: ${student.grade}`,20,110);
-    pdf.save(`${student.name}_Report.pdf`);
-}
-
-// SUBJECT ANALYSIS
-function showAnalysis(){
-    let db=JSON.parse(localStorage.getItem("results"))||[];
-    if(!db.length){analysisData.innerHTML="No data"; return;}
-    let totals=[0,0,0,0,0];
-    db.forEach(s=>s.marks.forEach((m,i)=>totals[i]+=m));
-    let avg=totals.map(t=>(t/db.length).toFixed(1));
-    analysisData.innerHTML=avg.map((a,i)=>`
-        <b>Subject ${i+1} (Avg: ${a})</b>
-        <div class="bar">
-            <div class="fill" style="--w:${a}%"></div>
-        </div>
-    `).join("");
-}
-
-// TOP & LOWEST
-function showTopLow(){
-    let db=JSON.parse(localStorage.getItem("results"))||[];
-    if(!db.length){toplowData.innerHTML="No data"; return;}
-    db.sort((a,b)=>b.total-a.total);
-    let top=db[0], low=db[db.length-1];
-    toplowData.innerHTML=`
-        <b>Topper:</b> ${top.name} | Total: ${top.total} | Percentage: ${top.percent}%<br>
-        <b>Lowest:</b> ${low.name} | Total: ${low.total} | Percentage: ${low.percent}%`;
+function analyzeClass(){
+let db=JSON.parse(localStorage.getItem('students'))||[];
+if(!db.length){analysisData.innerHTML="No data"; return;}
+let top=db.reduce((a,b)=>a.percent>b.percent?a:b);
+let low=db.reduce((a,b)=>a.percent<b.percent?a:b);
+analysisData.innerHTML=`<b>Topper:</b> ${top.name} (${top.percent}%)<br><br>
+<b>Lowest:</b> ${low.name} (${low.percent}%)`;
 }
 </script>
-
 </body>
 </html>
