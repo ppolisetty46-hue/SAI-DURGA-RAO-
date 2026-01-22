@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Runner Game Pro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: black;
+      overflow: hidden;
+    }
+
+    .screen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      background: linear-gradient(135deg, #ff9800, #ff5722);
+      z-index: 10;
+    }
+
+    #loadingScreen { display: none; }
+    #gameScreen { display: none; }
+
+    button {
+      padding: 15px 30px;
+      font-size: 18px;
+      border: none;
+      border-radius: 10px;
+      background: #000;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    #avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: #222;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 50px;
+    }
+
+    #game {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background: linear-gradient(#444, #111);
+      overflow: hidden;
+    }
+
+    .lane {
+      position: absolute;
+      width: 33.33%;
+      height: 100%;
+      border-left: 1px solid rgba(255,255,255,0.1);
+    }
+
+    #player {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      background: yellow;
+      border-radius: 10px;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .obstacle {
+      position: absolute;
+      width: 50px;
+      height: 60px;
+      background: red;
+      top: -80px;
+      border-radius: 5px;
+    }
+
+    .coin {
+      position: absolute;
+      width: 25px;
+      height: 25px;
+      background: gold;
+      border-radius: 50%;
+      top: -40px;
+    }
+
+    #hud {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: white;
+      font-size: 18px;
+      z-index: 2;
+    }
+  </style>
+</head>
+<body>
+
+<!-- START SCREEN -->
+<div id="startScreen" class="screen">
+  <div id="avatar">😎</div>
+  <h1>Runner Pro</h1>
+  <p>Tap Start to Run!</p>
+  <button onclick="startLoading()">START</button>
+</div>
+
+<!-- LOADING SCREEN -->
+<div id="loadingScreen" class="screen">
+  <h1>Loading...</h1>
+  <p id="loadingText">0%</p>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="gameScreen">
+  <div id="game">
+    <div id="hud">Score: 0 | Coins: 0</div>
+    <div class="lane" style="left:0%"></div>
+    <div class="lane" style="left:33.33%"></div>
+    <div class="lane" style="left:66.66%"></div>
+    <div id="player"></div>
+  </div>
+</div>
+
+<script>
+  let lane = 1; // 0 left, 1 center, 2 right
+  let score = 0;
+  let coins = 0;
+  let speed = 5;
+  const player = document.getElementById("player");
+  const game = document.getElementById("game");
+  const hud = document.getElementById("hud");
+
+  function startLoading() {
+    document.getElementById("startScreen").style.display = "none";
+    document.getElementById("loadingScreen").style.display = "flex";
+
+    let load = 0;
+    let interval = setInterval(() => {
+      load += 10;
+      document.getElementById("loadingText").innerText = load + "%";
+      if (load >= 100) {
+        clearInterval(interval);
+        startGame();
+      }
+    }, 200);
+  }
+
+  function startGame() {
+    document.getElementById("loadingScreen").style.display = "none";
+    document.getElementById("gameScreen").style.display = "block";
+    updatePlayer();
+    setInterval(spawnObstacle, 1800);
+    setInterval(spawnCoin, 1300);
+    setInterval(updateScore, 500);
+  }
+
+  function updatePlayer() {
+    player.style.left = (lane * 33.33 + 16.66) + "%";
+  }
+
+  // Controls
+  document.addEventListener("keydown", e => {
+    if (e.key === "ArrowLeft" && lane > 0) lane--;
+    if (e.key === "ArrowRight" && lane < 2) lane++;
+    updatePlayer();
+  });
+
+  let touchStartX = 0;
+  document.addEventListener("touchstart", e => touchStartX = e.touches[0].clientX);
+  document.addEventListener("touchend", e => {
+    let dx = e.changedTouches[0].clientX - touchStartX;
+    if (dx > 50 && lane < 2) lane++;
+    if (dx < -50 && lane > 0) lane--;
+    updatePlayer();
+  });
+
+  function spawnObstacle() {
+    const obs = document.createElement("div");
+    obs.className = "obstacle";
+    let obsLane = Math.floor(Math.random() * 3);
+    obs.style.left = (obsLane * 33.33 + 16.66) + "%";
+    game.appendChild(obs);
+
+    let y = -80;
+    let move = setInterval(() => {
+      y += speed;
+      obs.style.top = y + "px";
+
+      if (checkCollision(obs)) {
+        alert("GAME OVER!\nScore: " + score + "\nCoins: " + coins);
+        location.reload();
+      }
+
+      if (y > window.innerHeight) {
+        clearInterval(move);
+        game.removeChild(obs);
+      }
+    }, 20);
+  }
+
+  function spawnCoin() {
+    const coin = document.createElement("div");
+    coin.className = "coin";
+    let coinLane = Math.floor(Math.random() * 3);
+    coin.style.left = (coinLane * 33.33 + 16.66) + "%";
+    game.appendChild(coin);
+
+    let y = -40;
+    let move = setInterval(() => {
+      y += speed;
+      coin.style.top = y + "px";
+
+      if (checkCollision(coin)) {
+        coins++;
+        hud.innerText = `Score: ${score} | Coins: ${coins}`;
+        clearInterval(move);
+        game.removeChild(coin);
+      }
+
+      if (y > window.innerHeight) {
+        clearInterval(move);
+        game.removeChild(coin);
+      }
+    }, 20);
+  }
+
+  function updateScore() {
+    score++;
+    hud.innerText = `Score: ${score} | Coins: ${coins}`;
+  }
+
+  function checkCollision(obj) {
+    const a = player.getBoundingClientRect();
+    const b = obj.getBoundingClientRect();
+    return (
+      a.left < b.right &&
+      a.right > b.left &&
+      a.top < b.bottom &&
+      a.bottom > b.top
+    );
+  }
+</script>
+
+</body>
+</html>
