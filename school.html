@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>School ERP System</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{box-sizing:border-box}
+body{
+margin:0;font-family:system-ui;
+background:linear-gradient(135deg,#c2e9fb,#a1c4fd);
+min-height:100vh;
+}
+
+#index{
+height:100vh;display:flex;align-items:center;justify-content:center;
+background:linear-gradient(135deg,#43cea2,#185a9d);
+color:#fff;text-align:center
+}
+#index img{height:90px;margin-bottom:10px}
+
+button{
+padding:12px 18px;border:none;border-radius:12px;
+background:#3f51b5;color:#fff;font-weight:bold;cursor:pointer;
+margin:6px
+}
+button:hover{opacity:.9}
+
+.header{
+background:#283593;color:#fff;padding:14px;
+font-size:20px;font-weight:bold;
+display:flex;align-items:center;justify-content:space-between
+}
+
+.home-btn{
+background:#ff7043;
+border-radius:20px;
+padding:8px 16px;
+}
+
+.back-index-btn{
+background:#ff5252;
+color:#fff;
+padding:8px 16px;
+border-radius:20px;
+float:right;
+margin:0 0 10px 0;
+cursor:pointer;
+}
+.back-index-btn:hover{opacity:0.9;}
+
+.back-home-btn{
+background:#43a047;
+color:#fff;
+padding:8px 14px;
+border-radius:20px;
+margin-top:10px;
+cursor:pointer;
+display:inline-block;
+}
+.back-home-btn:hover{opacity:0.9;}
+
+.forgot-pass{
+color:#ffeb3b;
+cursor:pointer;
+margin-top:8px;
+display:inline-block;
+}
+
+.screen{display:none;padding:14px}
+.active{display:block}
+
+/* PROFESSIONAL CARD */
+.card{
+background:linear-gradient(180deg,#ffffff,#f4f7ff);
+border-radius:20px;
+padding:20px;
+max-width:1200px;
+margin:auto;
+box-shadow:0 12px 35px rgba(0,0,0,.15);
+border:1px solid #e0e6ff;
+}
+
+input,textarea,select{
+padding:8px;border-radius:8px;border:1px solid #ccc;
+width:100%;margin:6px 0
+}
+
+.section-gap{margin-top:16px}
+
+.logo{height:40px}
+
+.student-row{
+padding:8px;
+border-bottom:1px solid #ddd
+}
+
+table{
+border-collapse:collapse;width:100%;margin-top:10px;
+}
+th,td{
+border:1px solid #ddd;padding:6px;text-align:center;font-size:13px;
+}
+th{background:#f1f1f1}
+.student-row input{width:60px}
+.name{width:120px}
+.roll{width:50px}
+</style>
+</head>
+
+<body>
+
+<!-- INDEX -->
+<div id="index">
+  <div>
+    <img id="indexLogo">
+    <h1>🏫 SCHOOL ERP</h1>
+    <button onclick="startApp()">Enter Admin</button>
+    <br>
+    <span class="forgot-pass" onclick="forgotPassword()">Forgot Password?</span>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+
+<div class="header">
+  <div>
+    <img id="schoolLogo" class="logo">
+    SCHOOL ADMIN DASHBOARD
+  </div>
+  <div>
+    <button onclick="openScreen('home')" class="home-btn">🏠 Home</button>
+    <button onclick="backToIndex()" class="back-index-btn">🔙 Logout</button>
+  </div>
+</div>
+
+<!-- HOME -->
+<div class="screen active" id="home">
+<div class="card">
+<h3>Admin Dashboard</h3>
+
+<div class="section-gap">
+<button onclick="openScreen('logo')">🏫 Upload Logo</button>
+<button onclick="openScreen('password')">🔐 Change Password</button>
+</div>
+
+<div class="section-gap">
+<button onclick="openScreen('add')">📝 Enter Marks</button>
+<button onclick="openScreen('view')">📋 View Students</button>
+<button onclick="openScreen('analysis')">📊 Analysis</button>
+</div>
+
+<div class="section-gap">
+<button onclick="openScreen('attendance')">🧾 Attendance</button>
+<button onclick="openScreen('fees')">💰 Fees</button>
+<button onclick="openScreen('timetable')">📅 Timetable</button>
+</div>
+
+<div class="section-gap">
+<button onclick="openScreen('teachers')">👩‍🏫 Teachers</button>
+<button onclick="openScreen('promotion')">⬆️ Promotion</button>
+<button onclick="openScreen('marksheet')">📝 Marksheet</button>
+</div>
+
+</div>
+</div>
+
+<!-- LOGO -->
+<div class="screen" id="logo">
+<div class="card">
+<h3>Upload School Logo</h3>
+<input type="file" accept="image/*" onchange="uploadLogo(event)">
+<button class="back-home-btn" onclick="openScreen('home')">🔙 Back to Home</button>
+</div>
+</div>
+
+<!-- PASSWORD -->
+<div class="screen" id="password">
+<div class="card">
+<h3>Change Admin Password</h3>
+<input id="newPass" placeholder="New Password">
+<button onclick="changePassword()">Change Password</button>
+<button class="back-home-btn" onclick="openScreen('home')">🔙 Back to Home</button>
+</div>
+</div>
+
+<!-- ADD MARKS (With Table) -->
+<div class="screen" id="add">
+<div class="card">
+<h3>Enter Whole Class Marks</h3>
+<input id="cls" placeholder="Class / Section">
+<input type="number" id="outof" placeholder="Out of Marks (per subject)">
+<input type="number" id="count" placeholder="Number of Students">
+<button onclick="createClassTable()">Create Table</button>
+
+<div class="table-wrap">
+<table id="classTable"></table>
+</div>
+
+<button onclick="saveClass()">Save Class</button>
+<button class="back-home-btn" onclick="openScreen('home')">🔙 Back to Home</button>
+</div>
+</div>
+
+<!-- VIEW -->
+<div class="screen" id="view">
+<div class="card">
+<h3>All Students</h3>
+<input id="searchBox" placeholder="🔍 Search by name / roll / class" oninput="searchStudent()">
+<div id="list"></div>
+<button class="back-home-btn" onclick="openScreen('home')">🔙 Back to Home</button>
+</div>
+</div>
+
+<!-- ANALYSIS -->
+<div class="screen" id="analysis">
+<div class="card">
+<h3>Class Analysis</h3>
+<div id="analysisData"></div>
+<button class="back-home-btn" onclick="openScreen('home')">🔙 Back to Home</button>
+</div>
+</div>
+
+<!-- ATTENDANCE -->
+<div class="screen" id="attendance">
+<div class="card">
+<h3>Attendance</h3>
+<input id="attRoll" placeholder="Roll Number">
+<select id="attStatus">
+<option>Present</option>
+<option>Absent</option>
+</select>
+<button onclick="markAttendance()">Save Attendance</button>
+<div id="attList"></div>
+<button class="back-home-btn" onclick="openScreen('home')">🔙 Back to Home</button>
+</div>
+</div>
+
+<!-- FEES -->
+<div class="screen" id="fees">
+<div class="card">
+<h3>Fees Management</h3>
+<input id="feeRoll" placeholder="Roll Number">
+<input id="feeAmount" placeholder="Amount Paid">
+<button onclick="saveFees()">Save Fees</button>
+<div id="feeList"></div>
+<button class="back-home-btn" onclick="openScreen('home')">🔙 Back to Home</button>
+</div>
+</div>
+
+<!-- TIMETABLE -->
+<div class="screen" id="timetable">
+<div class="card">
+<h3>Timetable</h3>
+<input id="ttClass" placeholder="Class">
+<textarea id="ttData" placeholder="Enter timetable"></textarea>
+<button onclick="saveTimetable()">Save</button>
+<div id="ttView"></div>
+<button class="back-home-btn" onclick="openScreen('home')">🔙 Back to Home</button>
+</div>
+</div>
+
+<!-- TEACHERS -->
+<div class="screen" id="teachers">
+<div class="card">
+<h3>Teachers</h3>
+<input id="tName" placeholder="Teacher Name">
+<input id="tSub" placeholder="Subject">
+<button onclick="addTeacher()">Add</button>
+<div id="teacherList"></div>
+<button class="back-home-btn" onclick="openScreen('home')">🔙 Back to Home</button>
+</div>
+</div>
+
+<!-- PROMOTION -->
+<div class="screen" id="promotion">
+<div class="card">
+<h3>Student Promotion</h3>
+<input id="proRoll" placeholder="Roll">
+<input id="newClass" placeholder="New Class">
+<button onclick="promoteStudent()">Promote</button>
+<div id="promoMsg"></div>
+<button class="back-home-btn" onclick="openScreen('home')">🔙 Back to Home</button>
+</div>
+</div>
+
+<!-- MARKSHEET -->
+<div class="screen" id="marksheet">
+<div class="card">
+<h3>Marksheet</h3>
+<input id="msRoll" placeholder="Roll Number">
+<button onclick="generateMarksheet()">Generate</button>
+<div id="marksheetData"></div>
+<button onclick="window.print()">🖨️ Print / Save PDF</button>
+<button class="back-home-btn" onclick="openScreen('home')">🔙 Back to Home</button>
+</div>
+</div>
+
+<script>
+let ADMIN_PASSWORD=localStorage.getItem("adminPass")||"1234";
+
+/* LOGIN */
+function startApp(){
+let p=prompt("Enter Admin Password:");
+if(p!==ADMIN_PASSWORD){alert("Wrong Password");return;}
+index.style.display="none";
+app.style.display="block";
+}
+
+function forgotPassword(){
+if(confirm("Reset password to default 1234?")){
+ADMIN_PASSWORD="1234";
+localStorage.setItem("adminPass",ADMIN_PASSWORD);
+alert("Password reset to 1234 ✅");
+}
+}
+
+function openScreen(id){
+document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+document.getElementById(id).classList.add("active");
+if(id==="view") showStudents();
+if(id==="analysis") analyzeClass();
+showTeachers();
+}
+
+function backToIndex(){
+app.style.display="none";
+index.style.display="flex";
+}
+
+/* LOGO */
+function uploadLogo(e){
+let f=e.target.files[0];
+let r=new FileReader();
+r.onload=()=>{
+schoolLogo.src=r.result;
+indexLogo.src=r.result;
+localStorage.setItem("logo",r.result);
+};
+r.readAsDataURL(f);
+}
+(function(){
+let l=localStorage.getItem("logo");
+if(l){schoolLogo.src=l;indexLogo.src=l;}
+})();
+
+/* PASSWORD */
+function changePassword(){
+ADMIN_PASSWORD=newPass.value;
+localStorage.setItem("adminPass",ADMIN_PASSWORD);
+alert("Password Changed ✅");
+}
+
+/* SUBJECTS FOR MARKS TABLE */
+const subjects=["TELUGU","HINDI","ENGLISH","MATHS","SCIENCE","SOCIAL"];
+
+/* CREATE CLASS TABLE */
+function createClassTable(){
+let n=Number(document.getElementById('count').value||0);
+let out=Number(document.getElementById('outof').value||0);
+if(n<1){alert("Enter number of students"); return;}
+if(out<1){alert("Enter out of marks"); return;}
+
+let table=document.getElementById('classTable');
+let html='<tr><th>Roll</th><th>Name</th>';
+subjects.forEach(s=>{html+='<th>'+s+'</th>'});
+html+='<th>Total</th><th>%</th></tr>';
+
+for(let i=0;i<n;i++){
+html+='<tr class="student-row">';
+html+='<td><input class="roll" type="number" placeholder="Roll"></td>';
+html+='<td><input class="name" placeholder="Name"></td>';
+for(let j=0;j<subjects.length;j++){
+html+='<td><input type="number"></td>';
+}
+html+='<td class="total">0</td><td class="percent">0%</td></tr>';
+}
+table.innerHTML=html;
+}
+
+/* SAVE CLASS MARKS */
+function saveClass(){
+let table=document.getElementById('classTable');
+let cls=document.getElementById('cls').value;
+let out=Number(document.getElementById('outof').value||0);
+if(!cls||!out){alert("Enter class and out of marks");return;}
+
+let db=JSON.parse(localStorage.getItem("students"))||[];
+let rows=table.querySelectorAll('.student-row');
+
+rows.forEach(r=>{
+let roll=r.querySelector('.roll').value||"";
+let name=r.querySelector('.name').value||"";
+let marks=[...r.querySelectorAll('td input')].slice(2).map(i=>Number(i.value||0));
+let total=marks.reduce((a,b)=>a+b,0);
+let totalOut=out*subjects.length;
+let percent=((total/totalOut)*100).toFixed(2);
+r.querySelector('.total').innerText=total;
+r.querySelector('.percent').innerText=percent+'%';
+
+db.push({roll,name,cls,marks,total,totalOut,percent});
+});
+localStorage.setItem('students',JSON.stringify(db));
+alert("Class saved successfully ✅");
+openScreen('home');
+}
+
+/* SHOW / SEARCH STUDENTS */
+function showStudents(){
+let db=JSON.parse(localStorage.getItem('students'))||[];
+if(!db.length){list.innerHTML="No data"; return;}
+list.innerHTML=db.map(s=>`
+<div class="student-row">
+<b>${s.name}</b> (Roll ${s.roll})<br>
+Class: ${s.cls}<br>
+Marks: ${s.marks? s.marks.join(', ') : '-'}<br>
+Total: ${s.total||0}/${s.totalOut||0} | ${s.percent||'0%'}
+</div>`).join('');
+}
+
+function searchStudent(){
+let q=searchBox.value.toLowerCase();
+let db=JSON.parse(localStorage.getItem('students'))||[];
+let filtered=db.filter(s=>
+s.name.toLowerCase().includes(q) ||
+s.roll.toLowerCase().includes(q) ||
+s.cls.toLowerCase().includes(q)
+);
+list.innerHTML=filtered.map(s=>`
+<div class="student-row">
+<b>${s.name}</b> (Roll ${s.roll})<br>
+Class: ${s.cls}<br>
+Marks: ${s.marks? s.marks.join(', ') : '-'}<br>
+Total: ${s.total||0}/${s.totalOut||0} | ${s.percent||'0%'}
+</div>`).join('');
+}
+
+/* ANALYSIS */
+function analyzeClass(){
+let db=JSON.parse(localStorage.getItem('students'))||[];
+if(!db.length){analysisData.innerHTML="No data"; return;}
+let top=db.reduce((a,b)=>+a.percent>+b.percent?a:b);
+let low=db.reduce((a,b)=>+a.percent<+b.percent?a:b);
+analysisData.innerHTML=`🏆 Topper: <b>${top.name}</b> (${top.percent}%)<br>Lowest: <b>${low.name}</b> (${low.percent}%)`;
+}
+
+/* ATTENDANCE */
+function markAttendance(){
+let db=JSON.parse(localStorage.getItem("attendance"))||[];
+db.push({roll:attRoll.value,status:attStatus.value});
+localStorage.setItem("attendance",JSON.stringify(db));
+attList.innerHTML="Attendance Saved ✅";
+}
+
+/* FEES */
+function saveFees(){
+let db=JSON.parse(localStorage.getItem("fees"))||[];
+db.push({roll:feeRoll.value,amount:feeAmount.value});
+localStorage.setItem("fees",JSON.stringify(db));
+feeList.innerHTML="Fees Saved ✅";
+}
+
+/* TIMETABLE */
+function saveTimetable(){
+localStorage.setItem("tt_"+ttClass.value,ttData.value);
+ttView.innerHTML="Timetable Saved ✅";
+}
+
+/* TEACHERS */
+function addTeacher(){
+let db=JSON.parse(localStorage.getItem("teachers"))||[];
+db.push({name:tName.value,subject:tSub.value});
+localStorage.setItem("teachers",JSON.stringify(db));
+showTeachers();
+}
+function showTeachers(){
+let db=JSON.parse(localStorage.getItem("teachers"))||[];
+teacherList.innerHTML=db.map(t=>`${t.name} - ${t.subject}<br>`).join("");
+}
+
+/* PROMOTION */
+function promoteStudent(){
+let db=JSON.parse(localStorage.getItem("students"))||[];
+let s=db.find(x=>x.roll==proRoll.value);
+if(!s){promoMsg.innerHTML="Student not found ❌";return;}
+s.cls=newClass.value;
+localStorage.setItem("students",JSON.stringify(db));
+promoMsg.innerHTML="Student Promoted ✅";
+}
+
+/* MARKSHEET */
+function generateMarksheet(){
+let db=JSON.parse(localStorage.getItem("students"))||[];
+let s=db.find(x=>x.roll==msRoll.value);
+if(!s){marksheetData.innerHTML="Student not found ❌";return;}
+marksheetData.innerHTML=`
+<h2>School Name</h2>
+<b>Name:</b> ${s.name}<br>
+<b>Roll:</b> ${s.roll}<br>
+<b>Class:</b> ${s.cls}<br>
+<b>Marks:</b> ${s.marks? s.marks.join(', ') : '-'}<br>
+<b>Percent:</b> ${s.percent||0}%<br>
+<hr>
+Principal Signature: ___________
+`;
+}
+</script>
+
+</body>
+</html>
